@@ -15,16 +15,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+
 """
+
 import os
 import sys
 import argparse
 import numpy as np
-from random import randint
+from utils.inout import frextract
 import matplotlib.pyplot as plt
 import warnings
 
-warnings.formatwarning = lambda msg, *args, **kwargs: f'\n{msg}\n'
 
 
 print(" ----------------------------------------------- ")
@@ -43,11 +44,11 @@ parser = argparse.ArgumentParser(prog='frac-comp',
 
 # ~~~~~~~~ Generic arguments for the main parser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-parser.add_argument('variable', default='pi',
+parser.add_argument('variable', nargs='?', default='pi',
                     help="Whether the comparison is done as a function of QQpipi ('pi') or QQmumu ('mu')",
                     choices=('pi','mu'))
 
-parser.add_argument('-sbrng', '--subrange', nargs=2, metavar=('MIN_QQ','MAX_QQ'),
+parser.add_argument('-sbrng', '--subrange', nargs=2, default=[0.32,0.96], metavar=('MIN_QQ','MAX_QQ'),
                     help='Subrange of Q^2 on which the analysis should be performed. Left and right ends of the range should be indicated and must be within the total default range 0.32-0.96 GeV^2')
 
 # !!! Needs work on defaults considering the directory system implemented in cmepda 
@@ -60,62 +61,80 @@ parser.add_argument('-svdir', '--savedir', default='.', metavar='SAVE_DIRECTORY'
 parser.add_argument('-fit', action='store_true',
                     help='Fits the residuals of each channel with a constant and prints the chi squared to command line')
 
+parser.add_argument('-test', metavar='SEARCH_DIRECTORY',
+                        help='Activates search mode: lists txt and dat files in the given directory')
+
 # Add mutually exclusive group of options for locating the input column files
 
 optgroup = parser.add_mutually_exclusive_group(required=True)
 
-optgroup.add_argument('-input', nargs=2, metavar=('FILEPATH_1','FILEPATH_2'),
+optgroup.add_argument('-infiles', nargs=2, metavar=('FILEPATH_1','FILEPATH_2'),
                       help='List the two paths to the input column files')
 
-optgroup.add_argument('-search', metavar='SEARCH_DIRECTORY',
-                        help='Activates search mode: lists txt and dat files in the given directory')
+optgroup.add_argument('-search', metavar='SEARCH_DIRECTORY', nargs='?', const=os.getcwd(),
+                        help='Activates search mode: lists txt and dat files in the given directory. When this option is specified without any argument given it defaults to the current working directory')
 
 
 # Parse from command line
 args = parser.parse_args()
 
-'''
-respath = os.path.join(os.getcwd(), args.resdir)
 
+#respath = os.path.join(os.getcwd(), args.resdir)
+if args.infiles is not None:
+    filepath1 , filepath2 = args.infiles
 
-# Initialize results txt file
-results_file = os.path.join(respath, 'residuals.txt')
-with open(results_file, encoding='utf-8', mode='w') as f:
-    f.write('\n Results of the analysis performed with PiK classifier package \n'
-            ' ------------------------------------------------------------- \n\n')
+if args.search is not None:
+    searchdir =  args.search
+    files = [name for name in os.listdir(searchdir) if ('.txt' in name or '.dat' in name)]
+    for i in range(len(files)):
+        files[i] = f'{i+1}) '+ files[i]
+    if len(files) == 0:
+        print("\nError: given search directory contains no files with '.txt' or '.dat' extensions!\n")
+        sys.exit(0)
+    print(*files, sep = '\n')
+    cond = True
 
+    # Need to solve problem when inputing non integer string in search mode !!!
 
-def add_result(name, value, note=''):
-    """
-    Function that writes the results of the analyses in the apposite file
-    """
-    with open(results_file, encoding='utf-8', mode='a') as file:
-        if note == '':
-            file.write(f'    {name} = {value}\n')
+    while cond:
+        resp = input("\nChoose the first fraction file to use by entering the relative number, or enter 'q' or 'quit' to exit the program: ")
+        if resp in ('q','quit'):
+            print('\nExiting the program...\n')
+            sys.exit(0)
+        if int(resp)-1 in range(len(files)):
+            filename1 = files[int(resp)-1][3:]
+            print(f'\nYou chose {filename1} as the first file')
+            cond = False
         else:
-            file.write(f'    {name} = {value}  |  {note} \n')
+            print("\nError: the input number is out of range! Choose again...")
+    cond = True
+    while cond:
+        resp = input("\nChoose the second fraction file to use by entering the relative number, or enter 'q' or 'quit' to exit the program: ")
+        if resp in ('q','quit'):
+            print('\nExiting the program...\n')
+            sys.exit(0)
+        if int(resp)-1 in range(len(files)):
+            filename2 = files[int(resp)-1][3:]
+            print(f'\nYou chose {filename2} as the second file')
+            cond = False
+        else:
+            print("\nError: the input number is out of range! Choose again...")
+    
+    if not searchdir.endswith('/'):
+        searchdir = searchdir + '/'
+
+    filepath1 , filepath2 = searchdir + filename1 , searchdir + filename2
+    
 
 
-if hasattr(args, 'rootpaths_toy'):
-    # Generates the datasets with the requested fraction of signal events in
-    # the data set. If the following two quantities are BOTH set to zero, the
-    # function generates the datasets with the maximum possible number of events
-    if len(args.num_events) >= 3:
-        msg = '***WARNING*** \nList with number of events to be generated \
-contains more than two values. Using only the first two...\n*************\n'
-        warnings.warn(msg, stacklevel=2)
-        args.num_events = args.num_events[:2]
-    try:
-        if len(args.num_events) < 2:
-            raise IncorrectIterableError(args.num_events, 2, 'args.num_events')
-    except IncorrectIterableError as err:
-        print(err)
-        sys.exit()
-    NUM_MC, NUM_DATA = args.num_events
-    gen_from_toy(filepaths_in=tuple(args.rootpaths_toy), tree=args.tree,
-                 fraction=args.fraction, vars=tuple(args.variables),
-                 num_mc=NUM_MC, num_data=NUM_DATA)
+print(f'\nProcessing files {filepath1} and {filepath2}...\n')
+var = args.variable
+    
+fracts1 , fracts2 = frextract(filepath1,var,args.subrange) , frextract(filepath2,var,args.subrange)
 
+print(fracts1)
+
+'''
 
 if args.cornerplot is True:
     if args.variables == default_vars():
@@ -418,4 +437,5 @@ if hasattr(args, "methods"):
 
 
 print("END OF FILE")
+
 '''
