@@ -22,9 +22,10 @@ import os
 import sys
 import argparse
 import numpy as np
-from utils.inout import frextract
 import matplotlib.pyplot as plt
-import warnings
+from utils.inout import frextract
+from utils.residuals import makeresids, fitconst
+
 
 
 
@@ -48,6 +49,7 @@ parser.add_argument('variable', nargs='?', default='pi',
                     help="Whether the comparison is done as a function of QQpipi ('pi') or QQmumu ('mu')",
                     choices=('pi','mu'))
 
+# !!! check that they are in range
 parser.add_argument('-sbrng', '--subrange', nargs=2, default=[0.32,0.96], metavar=('MIN_QQ','MAX_QQ'),
                     help='Subrange of Q^2 on which the analysis should be performed. Left and right ends of the range should be indicated and must be within the total default range 0.32-0.96 GeV^2')
 
@@ -99,11 +101,11 @@ if args.search is not None:
     while cond:
         resp = input("\nChoose the first fraction file to use by entering the relative number, or enter 'q' or 'quit' to exit the program: ")
         if resp in ('q','quit'):
-            print('\nExiting the program...\n')
+            print("\nExiting the program...\n")
             sys.exit(0)
         if int(resp)-1 in range(len(files)):
             filename1 = files[int(resp)-1][3:]
-            print(f'\nYou chose {filename1} as the first file')
+            print(f"\nYou chose {filename1} as the first file")
             cond = False
         else:
             print("\nError: the input number is out of range! Choose again...")
@@ -111,11 +113,11 @@ if args.search is not None:
     while cond:
         resp = input("\nChoose the second fraction file to use by entering the relative number, or enter 'q' or 'quit' to exit the program: ")
         if resp in ('q','quit'):
-            print('\nExiting the program...\n')
+            print("\nExiting the program...\n")
             sys.exit(0)
         if int(resp)-1 in range(len(files)):
             filename2 = files[int(resp)-1][3:]
-            print(f'\nYou chose {filename2} as the second file')
+            print(f"\nYou chose {filename2} as the second file")
             cond = False
         else:
             print("\nError: the input number is out of range! Choose again...")
@@ -127,12 +129,23 @@ if args.search is not None:
     
 
 
-print(f'\nProcessing files {filepath1} and {filepath2}...\n')
+print(f"\nProcessing files {filepath1} and {filepath2}...\n")
 var = args.variable
     
 fracts1 , fracts2 = frextract(filepath1,var,args.subrange) , frextract(filepath2,var,args.subrange)
 
-print(fracts1)
+resids , dresids = makeresids(fracts1,fracts2)
+print(dresids.shape[0])
+
+if args.fit is not None:
+    q, dq, chisq = fitconst(resids , dresids)
+    print("\n****************************** FIT RESULTS ******************************\n")
+    print(f"PPG channel : q = {q[0]:.3} +- {dq[0]:.3}  ,  chisq/ndof = {chisq[0]:.3} / {dresids.shape[0]}")
+    print(f"MMG channel : q = {q[1]:.3} +- {dq[1]:.3}  ,  chisq/ndof = {chisq[1]:.3} / {dresids.shape[0]}")
+    print(f"EEG channel : q = {q[2]:.3} +- {dq[2]:.3}  ,  chisq/ndof = {chisq[2]:.3} / {dresids.shape[0]}")
+    print(f"PPP channel : q = {q[3]:.3} +- {dq[3]:.3}  ,  chisq/ndof = {chisq[3]:.3} / {dresids.shape[0]}")
+    print("*************************************************************************\n")
+    print(chisq)
 
 '''
 

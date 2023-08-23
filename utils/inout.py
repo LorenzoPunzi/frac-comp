@@ -1,6 +1,4 @@
 import numpy as np
-import os
-import sys
 
 def is_float(string):
     try:
@@ -38,13 +36,13 @@ def frextract(filepath, var, qqrng):
 
             if not False in map(is_float,linlist) and flg:
                 for sublist,name in zip(list_fracs,cols):
-                    if qqrng[0] <= float(linlist[posdict[QQstring]]) <= qqrng[1]:
+                    if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
                         sublist.append(float(linlist[posdict[name]]))
 
-    return np.array(list_fracs)
+    return np.transpose(np.array(list_fracs))
 
 '''
-# Error handling for when the file is wrongly formatted (not all chanels or QQ, channel repeated twice,...) !!!!
+# Error handling for when the file is wrongly formatted (not all chanels or QQ, channel repeated twice, wrong number of tabs...) !!!!
 
             for name in cols:
                 if line.find(f'\t{name}') < 0:
