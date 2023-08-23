@@ -23,7 +23,7 @@ import sys
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.inout import frextract
+from utils.inout import frextract, reswrite
 from utils.residuals import makeresids, fitconst
 
 
@@ -49,7 +49,7 @@ parser.add_argument('variable', nargs='?', default='pi',
                     help="Whether the comparison is done as a function of QQpipi ('pi') or QQmumu ('mu')",
                     choices=('pi','mu'))
 
-# !!! check that they are in range
+# !!! check that they are in range and otherwise ask again
 parser.add_argument('-sbrng', '--subrange', nargs=2, default=[0.32,0.96], metavar=('MIN_QQ','MAX_QQ'),
                     help='Subrange of Q^2 on which the analysis should be performed. Left and right ends of the range should be indicated and must be within the total default range 0.32-0.96 GeV^2')
 
@@ -129,13 +129,19 @@ if args.search is not None:
     
 
 
-print(f"\nProcessing files {filepath1} and {filepath2}...\n")
+print(f"\nProcessing files {filepath1} and {filepath2}...")
 var = args.variable
     
 fracts1 , fracts2 = frextract(filepath1,var,args.subrange) , frextract(filepath2,var,args.subrange)
 
+# Needs to be tested !!!
+if not (fracts1[:,0] == fracts2[:,0]).all():
+    print(f"\nError: the input files have different binning in {'QQ'+var+var}!")
+    sys.exit(0)
+
 resids , dresids = makeresids(fracts1,fracts2)
-print(dresids.shape[0])
+
+reswrite(fracts1, resids, dresids, filepath1, filepath2, var)
 
 if args.fit is not None:
     q, dq, chisq = fitconst(resids , dresids)
@@ -145,7 +151,7 @@ if args.fit is not None:
     print(f"EEG channel : q = {q[2]:.3} +- {dq[2]:.3}  ,  chisq/ndof = {chisq[2]:.3} / {dresids.shape[0]}")
     print(f"PPP channel : q = {q[3]:.3} +- {dq[3]:.3}  ,  chisq/ndof = {chisq[3]:.3} / {dresids.shape[0]}")
     print("*************************************************************************\n")
-    print(chisq)
+
 
 '''
 
