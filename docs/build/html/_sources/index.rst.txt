@@ -12,6 +12,7 @@ Welcome to frac-comp's documentation!
 
    residuals
    inout
+   exceptions
 
 
 

@@ -75,7 +75,7 @@ FRACTIONS AS A FUNCTION OF SLICE
 
 
 
- QQmumu 	   dppg   	   prob   	   mmg   	   dmmg   	   eeg   	   deeg   	   ppp   	   dppp   	   sep   	   ppg  
+ QQmumu 	   ppg   	   dppg   	   mmg   	   dmmg   	   eeg   	   deeg   	   ppp   	   dppp   	   sep   	   prob 
 
 
 0.320000  	 0.598514 	 0.008334 	 0.244192 	 0.006313 	 0.027422 	 0.009070 	 0.129872 	 0.004476 	 0.999832 	 0.933126 

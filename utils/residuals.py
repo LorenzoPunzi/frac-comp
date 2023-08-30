@@ -40,10 +40,10 @@ def fitconst(resids, dresids):
 
     num = np.sum(r_i_w_i, axis=0)
     denom = np.sum(w_i, axis=0)
-
+    
     q = num/denom
     dq = np.sqrt(1/denom)
-    chisq = (resids-q)/dresids
+    chisq = np.divide(resids-q, dresids, out=np.zeros_like(resids), where=dresids!=0)
     chisq = chisq**2
     chisq = np.sum(chisq, axis=0)
 

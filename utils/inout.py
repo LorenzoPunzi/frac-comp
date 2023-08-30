@@ -1,5 +1,6 @@
 import numpy as np
-import csv
+from utils.exceptions import FileFormatError
+import traceback
 
 def is_float(string):
     try:
@@ -26,9 +27,11 @@ def frextract(filepath, var, qqrng):
     QQstring = 'QQ' + var + var
     noQQstring = 'QQ' + novar + novar
     list_fracs = [[], [], [], [], [], [], [], [], []]
+    filename = filepath.split('/')[-1]
+    err = 1
     with open(filepath, 'r') as buf:
         flg = 0
-        err = 0 # To check for correct formatting
+        head = 0
         cols = [QQstring,'ppg','dppg','mmg','dmmg','eeg','deeg','ppp','dppp']
         posdict = {}
         for line in buf:
@@ -37,28 +40,38 @@ def frextract(filepath, var, qqrng):
             linlist = line.split('\t')
             linlist[-1] = linlist[-1].replace('\n','')
 
-            if QQstring in linlist:
+            if QQstring in linlist and not head:
+                head = 1
                 flg = 1
-                for name in cols:
-                    posdict[name] = linlist.index(name)
-                
+                err = 0
+                try:
+                    for name in cols:
+                        posdict[name] = linlist.index(name)
+                except ValueError:
+                    raise FileFormatError(f"In file {filename} the header with '{QQstring}' does not contain '{name}'!")
+
             if noQQstring in linlist:
                 flg = 0
 
             if len(linlist) < 5:
                 continue
 
-            if not False in map(is_float,linlist) and flg:
-                for sublist,name in zip(list_fracs,cols):
-                    if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
-                        sublist.append(float(linlist[posdict[name]]))
+            if flg:
+                temp = {}
+                try:  
+                    for sublist,name in zip(list_fracs,cols):
+                        if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
+                            temp[name] = float(linlist[posdict[name]])
+                except ValueError:
+                    continue
+                else: 
+                    for sublist,name in zip(list_fracs,cols): sublist.append(temp[name])
+
+
+    #!!! empty files, multiple headers
     
-        # Error handling for when the file is wrongly formatted (not all chanels or QQ, channel repeated twice, wrong number of tabs...) !!!!
-
-                   # for name in cols:
-                   #     if line.find(f'\t{name}') < 0:
-                    #        pass
-
+    if err: raise FileFormatError(f"File {filename} does not contain a header with {QQstring}!")
+    if not list_fracs[0]: raise FileFormatError(f"File {filename} does not contain data for {QQstring}!")
 
     return np.transpose(np.array(list_fracs))
 

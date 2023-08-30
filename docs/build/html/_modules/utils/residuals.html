@@ -72,10 +72,10 @@
 
     <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r_i_w_i</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w_i</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
+    
     <span class="n">q</span> <span class="o">=</span> <span class="n">num</span><span class="o">/</span><span class="n">denom</span>
     <span class="n">dq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">denom</span><span class="p">)</span>
-    <span class="n">chisq</span> <span class="o">=</span> <span class="p">(</span><span class="n">resids</span><span class="o">-</span><span class="n">q</span><span class="p">)</span><span class="o">/</span><span class="n">dresids</span>
+    <span class="n">chisq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">resids</span><span class="o">-</span><span class="n">q</span><span class="p">,</span> <span class="n">dresids</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">resids</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">dresids</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">chisq</span> <span class="o">=</span> <span class="n">chisq</span><span class="o">**</span><span class="mi">2</span>
     <span class="n">chisq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">chisq</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
