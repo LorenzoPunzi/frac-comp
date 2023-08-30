@@ -67,8 +67,6 @@ def frextract(filepath, var, qqrng):
                 continue
 
 
-    #!!! multiple headers
-    print(np.transpose(np.array(list_fracs)))
     if err: raise FileFormatError(f"File {filename} does not contain a header with {QQstring}!")
     if not list_fracs[0]: raise FileFormatError(f"File {filename} does not contain data for {QQstring} in the specified range!")
 
