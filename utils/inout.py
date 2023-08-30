@@ -39,6 +39,19 @@ def frextract(filepath, var, qqrng):
             line.strip('\t')
             linlist = line.split('\t')
             linlist[-1] = linlist[-1].replace('\n','')
+            if flg:
+                temp = {}
+                try:  
+                    for sublist,name in zip(list_fracs,cols):
+                        if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
+                            temp[name] = float(linlist[posdict[name]])
+                except ValueError:
+                    if linlist != ['']: flg = 0
+                except IndexError:
+                    raise FileFormatError(f"In file {filename} there incomplete data rows for variable '{QQstring}'!")
+                else: 
+                    if temp:
+                        for sublist,name in zip(list_fracs,cols): sublist.append(temp[name])
 
             if QQstring in linlist and not head:
                 head = 1
@@ -50,28 +63,14 @@ def frextract(filepath, var, qqrng):
                 except ValueError:
                     raise FileFormatError(f"In file {filename} the header with '{QQstring}' does not contain '{name}'!")
 
-            if noQQstring in linlist:
-                flg = 0
-
             if len(linlist) < 5:
                 continue
 
-            if flg:
-                temp = {}
-                try:  
-                    for sublist,name in zip(list_fracs,cols):
-                        if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
-                            temp[name] = float(linlist[posdict[name]])
-                except ValueError:
-                    continue
-                else: 
-                    for sublist,name in zip(list_fracs,cols): sublist.append(temp[name])
 
-
-    #!!! empty files, multiple headers
-    
+    #!!! multiple headers
+    print(np.transpose(np.array(list_fracs)))
     if err: raise FileFormatError(f"File {filename} does not contain a header with {QQstring}!")
-    if not list_fracs[0]: raise FileFormatError(f"File {filename} does not contain data for {QQstring}!")
+    if not list_fracs[0]: raise FileFormatError(f"File {filename} does not contain data for {QQstring} in the specified range!")
 
     return np.transpose(np.array(list_fracs))
 
