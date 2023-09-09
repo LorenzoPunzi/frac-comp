@@ -1,6 +1,8 @@
 import numpy as np
 from utils.exceptions import FileFormatError
-import traceback
+"""
+Module containing functions ``frextract()`` and ``reswrite()``, which serve as I/O from the program to the local directories.
+"""
 
 def is_float(string):
     try:

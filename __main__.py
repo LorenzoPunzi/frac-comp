@@ -15,9 +15,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+__main__.py of the frac-comp program package. Can be run by command line directly as:
 
+$python __main__.py <variable> [options]
 """
-import traceback
 import os
 import sys
 import argparse

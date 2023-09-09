@@ -1,4 +1,7 @@
 import numpy as np
+"""
+Module containing functions ``makeresids()`` and ``fitconst()``, which serve manipulate arrays to find the fractions' residuals and fit them with a constant.
+"""
 
 def makeresids(fracts1, fracts2):
     """
