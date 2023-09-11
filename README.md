@@ -84,10 +84,24 @@ By default, the program calculates the residuals of the fractions (differences b
   python frac-comp pi -search -svdr my/other/directory
 ```
 
+#### Analyze Subrange
+
 By default, the program performs its analysis between in the Q^2 range [0.32, 0.96]. If the ``-sbrg,--subrange`` option is given, the user can specify a subrange of the default range in which to perform the analysis. The program will insist that the user given ends of the subrange be within the default range, if that happended not to be the case. Here is an example of this option in use:
 
 ```bash
   python frac-comp pi -search -sbrg 0.36 0.48
 ```
 
+#### Display Fractions and Residuals and Save the Figure
 
+The user can ask the program to show a figure of the fractions and their residuals as a function of the chosen variable, using the ``-fig,--figure``. One figure is shown for each of the four channels.
+
+If the ``-svfg,--savefig`` option is given, the four figures will be saved. If no argument follows the optionflag, the figures are saved to the current working directory. If, however, a path is specified after the flag, they will be saved in the provided directory:
+
+```bash
+  python frac-comp pi -search --savefig my/savefig/directory
+```
+
+#### Fit the Residuals with a Constant
+
+The user can fit the residuals with a constant, assuming all fractions are independent. The fit is done minimizing the chi square of the residuals, which is then printed to command line, along with the fit results. If the residuals are displayed using ``-fig,--figure`` or ``-svfg,--savefig``, the best fit constant line will be depicted in the figures.
