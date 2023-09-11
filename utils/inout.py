@@ -13,7 +13,7 @@ def is_float(string):
 
 def frextract(filepath, var, qqrng):
     """
-    Extracts the fractions and Q^2 values from the given file for all channels, putting them in a signele numpy array.
+    Extracts the fractions and Q^2 values from the given file for all channels, putting them in a single numpy array.
 
     :param filepath: Filepath of the column file from which to extract the fractions.
     :type filepath: str

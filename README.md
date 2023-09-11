@@ -46,9 +46,10 @@ In order to use the program, a variable must be chosen by the user, between ``pi
 ```bash
   python frac-comp pi [options]
 ```
+If a variable is not given, the program will prompt the user to do so.
 
 ### Input Files
-In order to use the program, some form of input must be given by the user in order to locate the fraction files to compare. 
+Furthermore, some form of input must be given by the user in order to locate the fraction files to compare. 
 The input files can be given directly, by entering two paths to the files separated by a space following the variable,
 ```bash
   python frac-comp pi inputfile1.txt dir/inputfile2.txt [options]
@@ -57,11 +58,35 @@ or they can be selected from those in a given directory by using ``search`` mode
 ```bash
   python frac-comp mu -search dir/of/files/ [options]
 ```
+In this case the program will list all files with ``.txt`` and ``.dat`` extensions in the given directory. The user will be then prompted to choose two options from the listed files.
 
+### File Parsing Rules
+The input files must both contain a header line with the respective variable (``QQ_pipi`` or ``QQ_mumu``), the four channels (``ppg,mmg,eeg,ppp``) and their errors (``dppg,dmmg,deeg,dppp``). The program then parses the following lines, looking for floats in the same colums as the respective names in the header. There can be extra columns in the header row and the number rows, as long as the ones necessary are present and the number columns are in the order of their respective channels in the header. The values in each row, header or number, must be separated by only one tab character, followed or preceded by any number of whitespaces.
+As soon as the program encounters a row that is not correctly formatted as a numer row, it will stop looking for fractions to take as input. Therefore, if a file has multiple headers, only the first and its following data rows are recorded.
+The two fraction files must have an identical number of data rows, or else the program will return an error.
 
-### Perform the analysis
-The analysis can be done by using the "analysis" subparser, once that the MC and data sets are generated. For example, a command that covers all the analyses and saves the figure in an apposite folder in the current directoty is:
+### Other Options
+
+There are multiple options to choose from to manipulate the fractions given as input. To find the commands for each option run
+
 ```bash
-  python frac-comp -fig analysis -m all -ld -err
+  python frac-comp --help
 ```
+or 
+```bash
+  python frac-comp -h
+```
+
+By default, the program calculates the residuals of the fractions (differences between fractions of the same channels from the two files) as a function of the chosen variable. It also saves them, along with their errors calculated with standard error propagation, in an output file called ``residuals.dat`` in a directory called ``output``. The user can choose another directory with the ``-svdr,--savedir`` option, e.g.
+
+```bash
+  python frac-comp pi -search -svdr my/other/directory
+```
+
+By default, the program performs its analysis between in the Q^2 range [0.32,0.96]. If the ``-sbrg,--subrange`` option is given, the user can specify a subrange of the default range in which to perform the analysis. The program will insist that the user given ends of the subrange be within the default range, if that happended not to be the case.
+
+```bash
+  python frac-comp pi -search -sbrg 0.36 0.48
+```
+
 
