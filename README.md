@@ -76,6 +76,7 @@ or
 ```bash
   python frac-comp -h
 ```
+#### Save Directory
 
 By default, the program calculates the residuals of the fractions (differences between fractions of the same channels from the two files) as a function of the chosen variable. It also saves them, along with their errors calculated with standard error propagation, in an output file called ``residuals.dat`` in a directory called ``output``. The user can choose another directory with the ``-svdr,--savedir`` option, e.g.
 
@@ -83,7 +84,7 @@ By default, the program calculates the residuals of the fractions (differences b
   python frac-comp pi -search -svdr my/other/directory
 ```
 
-By default, the program performs its analysis between in the Q^2 range [0.32,0.96]. If the ``-sbrg,--subrange`` option is given, the user can specify a subrange of the default range in which to perform the analysis. The program will insist that the user given ends of the subrange be within the default range, if that happended not to be the case.
+By default, the program performs its analysis between in the Q^2 range [0.32, 0.96]. If the ``-sbrg,--subrange`` option is given, the user can specify a subrange of the default range in which to perform the analysis. The program will insist that the user given ends of the subrange be within the default range, if that happended not to be the case. Here is an example of this option in use:
 
 ```bash
   python frac-comp pi -search -sbrg 0.36 0.48
