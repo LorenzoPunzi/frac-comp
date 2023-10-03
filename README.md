@@ -104,4 +104,4 @@ If the ``-svfg,--savefig`` option is given, the four figures will be saved. If n
 
 #### Fit the Residuals with a Constant
 
-The user can fit the residuals with a constant, assuming all fractions are independent. The fit is done minimizing the chi square of the residuals, which is then printed to command line, along with the fit results. If the residuals are displayed using ``-fig,--figure`` or ``-svfg,--savefig``, the best fit constant line will be depicted in the figures.
+The user can fit the residuals with a constant, assuming all fractions are independent. The fit is done minimizing the chi square of the residuals, which is then printed to command line, along with the fit results. If the residuals are displayed using ``-fig,--figure`` or ``-svfg,--savefig``, the best fit constant line will be depicted in the figures. In the case of all residuals having null uncertainty, the fitted constant is the Minimum Mean Square Error estimator of the residuals, i.e. their average. The error of the constant is taken to be the square root of the sample mean variance of the residuals.

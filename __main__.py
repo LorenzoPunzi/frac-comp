@@ -47,9 +47,9 @@ parser = argparse.ArgumentParser(prog='frac-comp',
 
 # ~~~~~~~~ Generic arguments for the main parser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-parser.add_argument('variable', nargs='?', default='pi',
+parser.add_argument('variable', nargs='?',
                     help="Whether the comparison is done as a function of QQpipi ('pi') or QQmumu ('mu').",
-                    choices=('pi','mu'))
+                    )
 
 parser.add_argument('-sbrg', '--subrange', nargs=2, default=[0.32,0.96], metavar=('MIN_QQ','MAX_QQ'),
                     help='Subrange of Q^2 on which the analysis should be performed. Left and right ends of the range should be indicated (first number not greater than second) and must be within the total default range 0.32-0.96 GeV^2.')
@@ -79,6 +79,20 @@ optgroup.add_argument('-search', metavar='SEARCH_DIRECTORY', nargs='?', const=os
 
 # Parse from command line
 args = parser.parse_args()
+
+if args.variable is None or args.variable not in ('pi','mu'):
+    cond = True
+    print("\nNo variable or an invalid variable was given to the program to perform the comparison on.")
+    while cond:
+        resp = input("Please choose between QQpipi ('pi') and QQmumu ('mu'): ")
+        if resp in ('pi','mu'):
+            args.variable = resp
+            print(f"You chose the variable {'QQ'+resp+resp}!")
+            cond = False
+        else:
+            print("Invalid input! Please try again...\n")
+
+
 
 if args.infiles is not None:
     filepath1 , filepath2 = args.infiles
@@ -132,7 +146,7 @@ var = args.variable
 try:
     if float(args.subrange[0]) < 0.32 or float(args.subrange[1]) > 0.96 or float(args.subrange[0]) > float(args.subrange[1]):
         cond = True
-        print("\nError: the chosen subrange is either wrongly formatted (first number grater than second) or outside of the default range 0.32-0.96 GeV^2.\n")
+        print("\nError: the chosen subrange is either wrongly formatted (first number greater than second) or outside of the default range 0.32-0.96 GeV^2.\n")
         while cond:
             resp = input("Please input the left and right endpoints of the subrange again, separated by a space:")
             endpoints = resp.split()
@@ -141,13 +155,25 @@ try:
                     print(f"\nYou chose the range [{endpoints[0]},{endpoints[1]}] GeV^2")
                     cond = False
                 else:
-                    print("\nError: the input does not consist in two valid numbers within the range! Choose again...")
+                    print("\nError: the input does not consist in two valid numbers within the range 0.32-0.96 GeV^2! Choose again...")
             except ValueError:
                 print("\nError: the input are not numbers! Choose again...")
         args.subrange = endpoints
 except ValueError:
     print("\nError: the input for Q^2 subrange are not numbers!\n")
-    sys.exit(0)
+    cond = True
+    while cond:
+        resp = input("Please input the left and right endpoints of the subrange again, separated by a space:")
+        endpoints = resp.split()
+        try:
+            if len(endpoints) == 2 and 0.32 <= float(endpoints[0]) <= float(endpoints[1]) <= 0.96:
+                print(f"\nYou chose the range [{endpoints[0]},{endpoints[1]}] GeV^2")
+                cond = False
+            else:
+                print("\nError: the input does not consist in two valid numbers within the range 0.32-0.96 GeV^2! Choose again...")
+        except ValueError:
+            print("\nError: the input are not numbers! Choose again...")
+    args.subrange = endpoints
 
 print(f"\nProcessing files {filepath1} and {filepath2}, in variable {'QQ'+var+var} and range [{args.subrange[0]},{args.subrange[1]}]...\n")
 
@@ -211,7 +237,10 @@ if args.figure or args.savefig is not None:
             plt.axhline(y = q[i], linestyle = '-', linewidth = 1, color = 'r',label = fr'Best fit: {q[i]:.2} $\pm$ {dq[i]:.2}')
         plt.legend()
         if args.savefig is not None:
-            plt.savefig(os.path.join(args.savefig,names[i]), format = 'pdf')
+            try:
+                plt.savefig(os.path.join(args.savefig,names[i]), format = 'pdf')
+            except FileNotFoundError:
+                print("Figures were not saved due to invalid -svfg,--savefig directory!")
         if args.figure:
             plt.show()
 

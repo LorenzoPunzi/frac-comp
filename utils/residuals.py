@@ -35,7 +35,7 @@ def fitconst(resids, dresids):
 
     """
 
-    dresids[dresids != 0] = 1 / dresids[dresids != 0]
+    dresids[dresids != 0] = 1 / dresids[dresids != 0] # Invert the residuals (that are not 0)
     w_i = dresids**2
     dresids[dresids != 0] = 1 / dresids[dresids != 0] # revert to original residual errors so as to not change them in __main__
 
@@ -43,12 +43,23 @@ def fitconst(resids, dresids):
 
     num = np.sum(r_i_w_i, axis=0)
     denom = np.sum(w_i, axis=0)
-    
-    q = num/denom
-    dq = np.sqrt(1/denom)
+
+    q = np.divide(num, denom, out=np.zeros_like(num), where=denom!=0)
+    dq = np.sqrt(np.divide(1, denom, out=np.zeros_like(denom), where=denom!=0))
     chisq = np.divide(resids-q, dresids, out=np.zeros_like(resids), where=dresids!=0)
     chisq = chisq**2
     chisq = np.sum(chisq, axis=0)
 
+    # Use simple average and sample variance estimates when no residuals have error for a column
+    names = ['ppg', 'mmg', 'eeg', 'ppp']
+    for i in range(len(dq)):
+        flg = 0
+        if dq[i]==0:
+            q[i] = np.average(resids, axis = 0)[i]
+            dq[i] = np.sqrt(np.var(resids, axis =0, ddof=1)[i]/np.shape(resids)[0])
+            chisq[i] = np.sum((q-resids)**2,axis=0)[i]
+            flg = 1
+            print(f"All residuals in the {names[i]} column have zero uncertainty!") 
+        if flg: print("\nFor channels with all null residual uncertainties, the constant 'q' is taken to be their average and its uncertainty the sample standard deviation divided by sqrt(N), with N the number of residuals. The chi square here represents the 'sum of squares', not an actual chi square.\n")
     return q, dq, chisq
 
