@@ -25,15 +25,13 @@ def frextract(filepath, var, qqrng):
     :rtype: numpy.array(float)
 
     """
-    novar = 'mu' if var == 'pi' else 'pi'
     QQstring = 'QQ' + var + var
-    noQQstring = 'QQ' + novar + novar
     list_fracs = [[], [], [], [], [], [], [], [], []]
     filename = filepath.split('/')[-1]
-    err = 1
+    err = 1 # To check if there are no valid headers
     with open(filepath, 'r') as buf:
-        flg = 0
-        head = 0
+        flg = 0 # To make sure only the data columns after the first valid header are recorded
+        head = 0 # To make sure only the first header is used to determine which column belongs to which fraction
         cols = [QQstring,'ppg','dppg','mmg','dmmg','eeg','deeg','ppp','dppp']
         posdict = {}
         for line in buf:
