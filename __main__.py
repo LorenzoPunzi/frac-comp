@@ -104,7 +104,7 @@ if args.search is not None:
         files[i] = f'{i+1}) '+ files[i]
     if len(files) == 0:
         print("\nError: given search directory contains no files with '.txt' or '.dat' extensions!\n")
-        sys.exit(0)
+        sys.exit(1)
     print(*files, sep = '\n')
     cond = True
 
@@ -181,15 +181,15 @@ try:
     fracts1 , fracts2 = frextract(filepath1,var,args.subrange) , frextract(filepath2,var,args.subrange)
 except FileFormatError as err:
     print(type(err).__name__, ":", err,"\n")
-    sys.exit(0)
+    sys.exit(1)
 
 if fracts1.shape != fracts2.shape:
     print(f"\nError: the input files have different numbers of rows/columns in {'QQ'+var+var}!\n")
-    sys.exit(0)  
+    sys.exit(1)  
 
 if not (fracts1[:,0] == fracts2[:,0]).all():
     print(f"\nError: the input files have different binning in {'QQ'+var+var}!\n")
-    sys.exit(0)
+    sys.exit(1)
 
 resids , dresids = makeresids(fracts1,fracts2)
 

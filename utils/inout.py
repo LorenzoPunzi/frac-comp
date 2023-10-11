@@ -69,7 +69,7 @@ def frextract(filepath, var, qqrng):
                     continue
     except FileNotFoundError:
         print(f"File {filepath} does not exist! Aborting...\n")
-        sys.exit(0)
+        sys.exit(1)
 
 
     if err: raise FileFormatError(f"File {filename} does not contain a header with {QQstring}!")
