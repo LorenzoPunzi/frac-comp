@@ -1,6 +1,7 @@
 import numpy as np
 from utils.exceptions import FileFormatError
 import sys
+import os
 """
 Module containing functions ``frextract()`` and ``reswrite()``, which serve as I/O from the program to the local directories.
 """
@@ -28,7 +29,7 @@ def frextract(filepath, var, qqrng):
     """
     QQstring = 'QQ' + var + var
     list_fracs = [[], [], [], [], [], [], [], [], []]
-    filename = filepath.split('/')[-1]
+    filename = os.path.basename(filepath)
     err = 1 # To check if there are no valid headers
     try:
         with open(filepath, 'r') as buf:
@@ -40,7 +41,7 @@ def frextract(filepath, var, qqrng):
                 line = line.replace(' ','')
                 line.strip('\t')
                 linlist = line.split('\t')
-                linlist[-1] = linlist[-1].replace('\n','')
+                linlist[-1] = linlist[-1].replace('\n','') # Removes spurious \n at the end of the last linlist element
                 if flg:
                     temp = {}
                     try:  
@@ -61,7 +62,7 @@ def frextract(filepath, var, qqrng):
                     err = 0
                     try:
                         for name in cols:
-                            posdict[name] = linlist.index(name)
+                            posdict[name] = linlist.index(name) # Record the meaning of the different columns
                     except ValueError:
                         raise FileFormatError(f"In file {filename} the header with '{QQstring}' does not contain '{name}'!")
 

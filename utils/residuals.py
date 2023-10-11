@@ -35,7 +35,7 @@ def fitconst(resids, dresids):
 
     """
 
-    dresids[dresids != 0] = 1 / dresids[dresids != 0] # Invert the residuals (that are not 0)
+    dresids[dresids != 0] = 1 / dresids[dresids != 0] # Invert the residuals (that are not 0) using masks
     w_i = dresids**2
     dresids[dresids != 0] = 1 / dresids[dresids != 0] # revert to original residual errors so as to not change them in __main__
 
@@ -46,7 +46,7 @@ def fitconst(resids, dresids):
 
     q = np.divide(num, denom, out=np.zeros_like(num), where=denom!=0)
     dq = np.sqrt(np.divide(1, denom, out=np.zeros_like(denom), where=denom!=0))
-    chisq = np.divide(resids-q, dresids, out=np.zeros_like(resids), where=dresids!=0)
+    chisq = np.divide(resids-q, dresids, out=np.zeros_like(resids), where=dresids!=0) # Broadcasts q in resids
     chisq = chisq**2
     chisq = np.sum(chisq, axis=0)
 
@@ -60,6 +60,6 @@ def fitconst(resids, dresids):
             chisq[i] = np.sum((q-resids)**2,axis=0)[i]
             flg = 1
             print(f"All residuals in the {names[i]} column have zero uncertainty!") 
-        if flg: print("\nFor channels with all null residual uncertainties, the constant 'q' is taken to be their average and its uncertainty the sample standard deviation divided by sqrt(N), with N the number of residuals. The chi square here represents the 'sum of squares', not an actual chi square.\n")
+        if flg: print("\nFor channels with all null residual uncertainties, the constant 'q' is taken to be their average and its uncertainty the sample standard deviation divided by sqrt(N), with N the number of residuals. The chi square here represents the 'sum of squares', not an actual chi square. This is the figure of merit minimised by the taking the average of the errorless residuals.\n")
     return q, dq, chisq
 
