@@ -1,5 +1,6 @@
 import numpy as np
 from utils.exceptions import FileFormatError
+import sys
 """
 Module containing functions ``frextract()`` and ``reswrite()``, which serve as I/O from the program to the local directories.
 """
@@ -29,42 +30,46 @@ def frextract(filepath, var, qqrng):
     list_fracs = [[], [], [], [], [], [], [], [], []]
     filename = filepath.split('/')[-1]
     err = 1 # To check if there are no valid headers
-    with open(filepath, 'r') as buf:
-        flg = 0 # To make sure only the data columns after the first valid header are recorded
-        head = 0 # To make sure only the first header is used to determine which column belongs to which fraction
-        cols = [QQstring,'ppg','dppg','mmg','dmmg','eeg','deeg','ppp','dppp']
-        posdict = {}
-        for line in buf:
-            line = line.replace(' ','')
-            line.strip('\t')
-            linlist = line.split('\t')
-            linlist[-1] = linlist[-1].replace('\n','')
-            if flg:
-                temp = {}
-                try:  
-                    for sublist,name in zip(list_fracs,cols):
-                        if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
-                            temp[name] = float(linlist[posdict[name]])
-                except ValueError:
-                    if linlist != ['']: flg = 0
-                except IndexError:
-                    raise FileFormatError(f"In file {filename} there incomplete data rows for variable '{QQstring}'!")
-                else: 
-                    if temp:
-                        for sublist,name in zip(list_fracs,cols): sublist.append(temp[name])
+    try:
+        with open(filepath, 'r') as buf:
+            flg = 0 # To make sure only the data columns after the first valid header are recorded
+            head = 0 # To make sure only the first header is used to determine which column belongs to which fraction
+            cols = [QQstring,'ppg','dppg','mmg','dmmg','eeg','deeg','ppp','dppp']
+            posdict = {}
+            for line in buf:
+                line = line.replace(' ','')
+                line.strip('\t')
+                linlist = line.split('\t')
+                linlist[-1] = linlist[-1].replace('\n','')
+                if flg:
+                    temp = {}
+                    try:  
+                        for sublist,name in zip(list_fracs,cols):
+                            if float(qqrng[0]) <= float(linlist[posdict[QQstring]]) <= float(qqrng[1]):
+                                temp[name] = float(linlist[posdict[name]])
+                    except ValueError:
+                        if linlist != ['']: flg = 0
+                    except IndexError:
+                        raise FileFormatError(f"In file {filename} there incomplete data rows for variable '{QQstring}'!")
+                    else: 
+                        if temp:
+                            for sublist,name in zip(list_fracs,cols): sublist.append(temp[name])
 
-            if QQstring in linlist and not head:
-                head = 1
-                flg = 1
-                err = 0
-                try:
-                    for name in cols:
-                        posdict[name] = linlist.index(name)
-                except ValueError:
-                    raise FileFormatError(f"In file {filename} the header with '{QQstring}' does not contain '{name}'!")
+                if QQstring in linlist and not head:
+                    head = 1
+                    flg = 1
+                    err = 0
+                    try:
+                        for name in cols:
+                            posdict[name] = linlist.index(name)
+                    except ValueError:
+                        raise FileFormatError(f"In file {filename} the header with '{QQstring}' does not contain '{name}'!")
 
-            if len(linlist) < 5:
-                continue
+                if len(linlist) < 5:
+                    continue
+    except FileNotFoundError:
+        print(f"File {filepath} does not exist! Aborting...\n")
+        sys.exit(0)
 
 
     if err: raise FileFormatError(f"File {filename} does not contain a header with {QQstring}!")
