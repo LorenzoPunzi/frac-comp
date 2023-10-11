@@ -212,7 +212,7 @@ if args.figure or args.savefig is not None:
     titles = ['ppg','mmg','eeg','ppp']
     names = ['ppg_fractions.pdf','mmg_fractions.pdf','eeg_fractions.pdf','ppp_fractions.pdf']
     for i in range(4):
-        latexvar = r'$Q^2_{\pi\pi}$' if var == 'pi' else '$Q^2_{\mu\mu}$'
+        latexvar = '$Q^2_{\pi\pi}$' if var == 'pi' else '$Q^2_{\mu\mu}$'
         plt.figure(f"{titles[i]} fractions and residuals as a function of "+latexvar)
         currfigure = plt.gcf()
         currfigure.set_size_inches(13, 7)
@@ -221,7 +221,7 @@ if args.figure or args.savefig is not None:
         plt.ylabel('Fraction')
         ax = plt.gca()
         ax.xaxis.set_tick_params(labelbottom=False)
-        latextitles = [r'$\pi^+\pi^-\gamma$',r'$\mu^+\mu^-\gamma$',r'$e^+e^-\gamma$',r'$\pi^+\pi^-\pi^0$']
+        latextitles = ['$\pi^+\pi^-\gamma$','$\mu^+\mu^-\gamma$','$e^+e^-\gamma$','$\pi^+\pi^-\pi^0$']
         plt.title(f"{latextitles[i]}  fractions as a function of "+latexvar)
         plt.errorbar(fracts1[:,0], fracts1[:,1+2*i], yerr=fracts1[:,2+2*i], ecolor='b', capsize = 2, linestyle='', label=filename1)
         plt.errorbar(fracts1[:,0], fracts2[:,1+2*i], yerr=fracts2[:,2+2*i], ecolor='r', capsize = 2, linestyle='', label=filename2)
